@@ -1,115 +1,119 @@
-// Load the CSV file
-d3.csv("IEA_Global_EV_Data_2024.csv")
-  .then(function (data) {
-    // Inspect the raw data
-    console.log("Raw Data:", data);
+// Heatmap Dimensions and SVG
+const heatmapMargin = { top: 60, right: 20, bottom: 50, left: 100 };
+const heatmapWidth = 800 - heatmapMargin.left - heatmapMargin.right;
+const heatmapHeight = 400 - heatmapMargin.top - heatmapMargin.bottom;
 
-    // Parse and clean data
-    const parsedData = data.map((d) => ({
-      region: d.region,
-      category: d.category,
-      parameter: d.parameter,
-      mode: d.mode,
-      powertrain: d.powertrain,
-      year: +d.year, // Convert year to a number
-      unit: d.unit,
-      value: +d.value, // Convert value to a number
-    }));
-
-    console.log("Parsed Data:", parsedData);
-
-    // Proceed with visualizations using parsedData
-  })
-  .catch(function (error) {
-    console.error("Error loading the dataset:", error);
-  });
-// Set up dimensions and margins
-const margin = { top: 50, right: 150, bottom: 50, left: 50 };
-const width = 800 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
-
-// Append the SVG element
-const svg = d3
-  .select("body")
-  .append("svg")
-  .attr("width", width + margin.left + margin.right)
-  .attr("height", height + margin.top + margin.bottom)
+const heatmapSvg = d3
+  .select("#heatmap")
+  .attr("width", heatmapWidth + heatmapMargin.left + heatmapMargin.right)
+  .attr("height", heatmapHeight + heatmapMargin.top + heatmapMargin.bottom)
   .append("g")
-  .attr("transform", `translate(${margin.left},${margin.top})`);
+  .attr("transform", `translate(${heatmapMargin.left},${heatmapMargin.top})`);
 
-// Load the data
-d3.csv("IEA_Global_EV_Data_2024.csv")
-  .then(function (data) {
-    // Parse and clean data
-    const parsedData = data.map((d) => ({
-      region: d.region,
-      category: d.category,
-      parameter: d.parameter,
-      mode: d.mode,
-      powertrain: d.powertrain,
-      year: +d.year,
-      unit: d.unit,
-      value: +d.value,
-    }));
+const heatmapFilter = d3.select("#heatmap-filter").style("margin", "10px");
 
-    // Filter data for EV stock share trends
-    const filteredData = parsedData.filter(
-      (d) => d.parameter === "EV stock share" && d.unit === "percent"
-    );
+// Load the Heatmap Data
+d3.csv("IEA Global EV Data 2024.csv").then((data) => {
+  const parsedData = data.map((d) => ({
+    region: d.region,
+    parameter: d.parameter,
+    year: +d.year,
+    value: +d.value,
+  }));
 
-    // Group data by region
-    const groupedData = d3.groups(filteredData, (d) => d.region);
+  const filteredData = parsedData.filter(
+    (d) => d.parameter === "EV stock share"
+  );
 
-    // Set up scales
-    const xScale = d3
-      .scaleLinear()
-      .domain(d3.extent(filteredData, (d) => d.year))
-      .range([0, width]);
+  const regions = Array.from(new Set(filteredData.map((d) => d.region)));
+  const years = Array.from(new Set(filteredData.map((d) => d.year))).sort(
+    (a, b) => a - b
+  );
 
-    const yScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(filteredData, (d) => d.value)])
-      .range([height, 0]);
+  const xScale = d3
+    .scaleBand()
+    .domain(years)
+    .range([0, heatmapWidth])
+    .padding(0.05);
+  const yScale = d3
+    .scaleBand()
+    .domain(regions)
+    .range([0, heatmapHeight])
+    .padding(0.05);
 
-    // Set up axes
-    const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
-    const yAxis = d3.axisLeft(yScale);
+  const colorScale = d3
+    .scaleSequential(d3.interpolateBlues)
+    .domain([0, d3.max(filteredData, (d) => d.value)]);
 
-    svg.append("g").attr("transform", `translate(0,${height})`).call(xAxis);
+  // Add Axes
+  heatmapSvg
+    .append("g")
+    .attr("transform", `translate(0,${heatmapHeight})`)
+    .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
 
-    svg.append("g").call(yAxis);
+  heatmapSvg.append("g").call(d3.axisLeft(yScale));
 
-    // Set up line generator
-    const line = d3
-      .line()
-      .x((d) => xScale(d.year))
-      .y((d) => yScale(d.value));
+  // Add Rectangles
+  const heatmapRects = heatmapSvg
+    .selectAll("rect")
+    .data(filteredData)
+    .enter()
+    .append("rect")
+    .attr("x", (d) => xScale(d.year))
+    .attr("y", (d) => yScale(d.region))
+    .attr("width", xScale.bandwidth())
+    .attr("height", yScale.bandwidth())
+    .style("fill", (d) => colorScale(d.value))
+    .style("stroke", "#ccc");
 
-    // Add lines for each region
-    const colors = d3.scaleOrdinal(d3.schemeCategory10);
+  // Tooltip
+  const heatmapTooltip = d3
+    .select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("background-color", "white")
+    .style("border", "1px solid #ccc")
+    .style("padding", "5px")
+    .style("border-radius", "5px")
+    .style("display", "none");
 
-    svg
-      .selectAll(".line")
-      .data(groupedData)
-      .enter()
-      .append("path")
-      .attr("class", "line")
-      .attr("d", (d) => line(d[1]))
-      .attr("fill", "none")
-      .attr("stroke", (d) => colors(d[0]))
-      .attr("stroke-width", 2);
+  heatmapRects
+    .on("mouseover", function (event, d) {
+      d3.select(this).style("stroke", "black");
+      heatmapTooltip
+        .style("display", "block")
+        .html(`Region: ${d.region}<br>Year: ${d.year}<br>Value: ${d.value}`);
+    })
+    .on("mousemove", (event) => {
+      heatmapTooltip
+        .style("top", event.pageY + 10 + "px")
+        .style("left", event.pageX + 10 + "px");
+    })
+    .on("mouseout", function () {
+      d3.select(this).style("stroke", "#ccc");
+      heatmapTooltip.style("display", "none");
+    });
 
-    // Add legend
-    svg
-      .selectAll(".legend")
-      .data(groupedData)
-      .enter()
-      .append("text")
-      .attr("x", width + 10)
-      .attr("y", (d, i) => i * 20)
-      .attr("fill", (d) => colors(d[0]))
-      .text((d) => d[0]);
-  })
-  .catch(function (error) {
-    console.error("Error loading the dataset:", error);
+  // Filter
+  heatmapFilter
+    .selectAll("option")
+    .data(["All", ...regions])
+    .enter()
+    .append("option")
+    .text((d) => d);
+
+  heatmapFilter.on("change", function () {
+    const selectedRegion = this.value;
+    const updatedData =
+      selectedRegion === "All"
+        ? filteredData
+        : filteredData.filter((d) => d.region === selectedRegion);
+
+    heatmapRects
+      .data(updatedData)
+      .transition()
+      .attr("y", (d) => yScale(d.region))
+      .attr("x", (d) => xScale(d.year))
+      .style("fill", (d) => colorScale(d.value));
   });
+});

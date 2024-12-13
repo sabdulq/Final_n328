@@ -3,39 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>D3 Data Loading</title>
+    <title>Interactive Charts</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      .chart-container {
+        margin-bottom: 30px; /* Add spacing between chart sections */
+      }
+
+      .filter-container {
+        text-align: center; /* Center-align filters */
+        margin-bottom: 10px; /* Add spacing below filters */
+      }
+
+      .chart-container svg {
+        display: block;
+        margin: 0 auto; /* Center the charts */
+      }
+    </style>
   </head>
   <body>
-    <h1>EV Data Visualization</h1>
+    <!-- Chart 1 -->
+    <div class="chart-container">
+      <div class="filter-container">
+        <select id="chart1-filter"></select>
+      </div>
+      <svg id="chart1"></svg>
+    </div>
 
+    <!-- Chart 2 -->
+    <div class="chart-container">
+      <div class="filter-container">
+        <select id="chart2-filter"></select>
+      </div>
+      <svg id="chart2"></svg>
+    </div>
     <script>
-      // Set up dimensions and margins
-      const margin = { top: 60, right: 20, bottom: 50, left: 100 };
-      const width = 800 - margin.left - margin.right;
-      const height = 400 - margin.top - margin.bottom;
+      // Heatmap Dimensions and SVG
+      const heatmapMargin = { top: 60, right: 20, bottom: 50, left: 100 };
+      const heatmapWidth = 800 - heatmapMargin.left - heatmapMargin.right;
+      const heatmapHeight = 400 - heatmapMargin.top - heatmapMargin.bottom;
 
-      // Append the SVG element
-      const svg = d3
-        .select("body")
-        .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+      const heatmapSvg = d3
+        .select("#heatmap")
+        .attr("width", heatmapWidth + heatmapMargin.left + heatmapMargin.right)
+        .attr(
+          "height",
+          heatmapHeight + heatmapMargin.top + heatmapMargin.bottom
+        )
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr(
+          "transform",
+          `translate(${heatmapMargin.left},${heatmapMargin.top})`
+        );
 
-      // Add title
-      svg
-        .append("text")
-        .attr("x", width / 2)
-        .attr("y", -20)
-        .attr("text-anchor", "middle")
-        .style("font-size", "18px")
-        .style("font-family", "Arial, sans-serif")
-        .style("fill", "#333")
-        .text("Interactive Heatmap of EV Stock Share by Region and Year");
+      const heatmapFilter = d3
+        .select("#heatmap-filter")
+        .style("margin", "10px");
 
-      // Load the dataset
+      // Load the Heatmap Data
       d3.csv("IEA Global EV Data 2024.csv").then((data) => {
         const parsedData = data.map((d) => ({
           region: d.region,
@@ -44,66 +69,41 @@
           value: +d.value,
         }));
 
-        // Filter data for EV stock share
         const filteredData = parsedData.filter(
           (d) => d.parameter === "EV stock share"
         );
 
-        // Get unique regions and years
         const regions = Array.from(new Set(filteredData.map((d) => d.region)));
         const years = Array.from(new Set(filteredData.map((d) => d.year))).sort(
           (a, b) => a - b
         );
 
-        // Scales
         const xScale = d3
           .scaleBand()
           .domain(years)
-          .range([0, width])
+          .range([0, heatmapWidth])
           .padding(0.05);
-
         const yScale = d3
           .scaleBand()
           .domain(regions)
-          .range([0, height])
+          .range([0, heatmapHeight])
           .padding(0.05);
 
         const colorScale = d3
           .scaleSequential(d3.interpolateBlues)
           .domain([0, d3.max(filteredData, (d) => d.value)]);
 
-        // Add axes
-        svg
+        // Add Axes
+        heatmapSvg
           .append("g")
-          .attr("transform", `translate(0,${height})`)
-          .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
-          .selectAll("text")
-          .style("font-family", "Arial, sans-serif")
-          .style("font-size", "10px");
+          .attr("transform", `translate(0,${heatmapHeight})`)
+          .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
 
-        svg
-          .append("g")
-          .call(d3.axisLeft(yScale))
-          .selectAll("text")
-          .style("font-family", "Arial, sans-serif")
-          .style("font-size", "10px");
+        heatmapSvg.append("g").call(d3.axisLeft(yScale));
 
-        // Tooltip
-        const tooltip = d3
-          .select("body")
-          .append("div")
-          .style("position", "absolute")
-          .style("background-color", "white")
-          .style("border", "1px solid #ccc")
-          .style("padding", "5px")
-          .style("border-radius", "5px")
-          .style("display", "none")
-          .style("font-family", "Arial, sans-serif")
-          .style("font-size", "12px");
-
-        // Add heatmap rectangles
-        svg
-          .selectAll()
+        // Add Rectangles
+        const heatmapRects = heatmapSvg
+          .selectAll("rect")
           .data(filteredData)
           .enter()
           .append("rect")
@@ -112,241 +112,165 @@
           .attr("width", xScale.bandwidth())
           .attr("height", yScale.bandwidth())
           .style("fill", (d) => colorScale(d.value))
-          .style("stroke", "#ccc")
+          .style("stroke", "#ccc");
+
+        // Tooltip
+        const heatmapTooltip = d3
+          .select("body")
+          .append("div")
+          .style("position", "absolute")
+          .style("background-color", "white")
+          .style("border", "1px solid #ccc")
+          .style("padding", "5px")
+          .style("border-radius", "5px")
+          .style("display", "none");
+
+        heatmapRects
           .on("mouseover", function (event, d) {
-            d3.select(this).style("stroke", "black").style("stroke-width", 2);
-            tooltip
+            d3.select(this).style("stroke", "black");
+            heatmapTooltip
               .style("display", "block")
               .html(
-                `<strong>Region:</strong> ${d.region}<br><strong>Year:</strong> ${d.year}<br><strong>EV Stock Share:</strong> ${d.value}%`
+                `Region: ${d.region}<br>Year: ${d.year}<br>Value: ${d.value}`
               );
           })
-          .on("mousemove", function (event) {
-            tooltip
+          .on("mousemove", (event) => {
+            heatmapTooltip
               .style("top", event.pageY + 10 + "px")
               .style("left", event.pageX + 10 + "px");
           })
           .on("mouseout", function () {
-            d3.select(this).style("stroke", "#ccc").style("stroke-width", 1);
-            tooltip.style("display", "none");
+            d3.select(this).style("stroke", "#ccc");
+            heatmapTooltip.style("display", "none");
           });
 
-        // Add dropdown for filtering by region
-        const dropdown = d3
-          .select("body")
-          .append("select")
-          .attr("id", "regionDropdown")
-          .style("margin", "10px");
-
-        dropdown
+        // Filter
+        heatmapFilter
           .selectAll("option")
           .data(["All", ...regions])
           .enter()
           .append("option")
-          .text((d) => d)
-          .attr("value", (d) => d);
+          .text((d) => d);
 
-        dropdown.on("change", function () {
+        heatmapFilter.on("change", function () {
           const selectedRegion = this.value;
           const updatedData =
             selectedRegion === "All"
               ? filteredData
               : filteredData.filter((d) => d.region === selectedRegion);
 
-          // Update heatmap with filtered data
-          svg
-            .selectAll("rect")
+          heatmapRects
             .data(updatedData)
-            .join("rect")
-            .attr("x", (d) => xScale(d.year))
+            .transition()
             .attr("y", (d) => yScale(d.region))
-            .attr("width", xScale.bandwidth())
-            .attr("height", yScale.bandwidth())
-            .style("fill", (d) => colorScale(d.value))
-            .style("stroke", "#ccc")
-            .on("mouseover", function (event, d) {
-              d3.select(this).style("stroke", "black").style("stroke-width", 2);
-              tooltip
-                .style("display", "block")
-                .html(
-                  `<strong>Region:</strong> ${d.region}<br><strong>Year:</strong> ${d.year}<br><strong>EV Stock Share:</strong> ${d.value}%`
-                );
-            })
-            .on("mousemove", function (event) {
-              tooltip
-                .style("top", event.pageY + 10 + "px")
-                .style("left", event.pageX + 10 + "px");
-            })
-            .on("mouseout", function () {
-              d3.select(this).style("stroke", "#ccc").style("stroke-width", 1);
-              tooltip.style("display", "none");
-            });
+            .attr("x", (d) => xScale(d.year))
+            .style("fill", (d) => colorScale(d.value));
         });
       });
-      // Set up dimensions and margins
+      // Bar Chart Dimensions and SVG
       const barMargin = { top: 60, right: 20, bottom: 100, left: 60 };
       const barWidth = 800 - barMargin.left - barMargin.right;
       const barHeight = 400 - barMargin.top - barMargin.bottom;
 
-      // Append the SVG element
       const barSvg = d3
-        .select("body")
-        .append("svg")
+        .select("#bar-chart")
         .attr("width", barWidth + barMargin.left + barMargin.right)
         .attr("height", barHeight + barMargin.top + barMargin.bottom)
         .append("g")
         .attr("transform", `translate(${barMargin.left},${barMargin.top})`);
 
-      // Add title
-      barSvg
-        .append("text")
-        .attr("x", barWidth / 2)
-        .attr("y", -20)
-        .attr("text-anchor", "middle")
-        .style("font-size", "18px")
-        .style("font-family", "Arial, sans-serif")
-        .style("fill", "#333")
-        .text("Regional Leaders in EV Sales and Stock");
+      const barFilter = d3.select("#bar-chart-filter").style("margin", "10px");
 
-      // Load the dataset
-      d3.csv("IEA Global EV Data 2024.csv")
-        .then((data) => {
-          const parsedData = data.map((d) => ({
-            region: d.region,
-            parameter: d.parameter,
-            value: +d.value,
-          }));
+      // Load the Bar Chart Data
+      d3.csv("IEA Global EV Data 2024.csv").then((data) => {
+        const parsedData = data.map((d) => ({
+          region: d.region,
+          parameter: d.parameter,
+          value: +d.value,
+        }));
 
-          // Aggregate data for sales and stock by region
-          const salesData = Array.from(
-            d3.rollup(
-              parsedData.filter((d) => d.parameter === "EV sales"),
-              (v) => d3.sum(v, (d) => d.value),
-              (d) => d.region
-            ),
-            ([region, value]) => ({ region, value })
-          );
+        const salesData = Array.from(
+          d3.rollup(
+            parsedData.filter((d) => d.parameter === "EV sales"),
+            (v) => d3.sum(v, (d) => d.value),
+            (d) => d.region
+          ),
+          ([region, value]) => ({ region, value })
+        );
 
-          const stockData = Array.from(
-            d3.rollup(
-              parsedData.filter((d) => d.parameter === "EV stock"),
-              (v) => d3.sum(v, (d) => d.value),
-              (d) => d.region
-            ),
-            ([region, value]) => ({ region, value })
-          );
+        const stockData = Array.from(
+          d3.rollup(
+            parsedData.filter((d) => d.parameter === "EV stock"),
+            (v) => d3.sum(v, (d) => d.value),
+            (d) => d.region
+          ),
+          ([region, value]) => ({ region, value })
+        );
 
-          // Set initial data to "sales"
-          let currentData = salesData;
+        let currentData = salesData;
 
-          // Scales
-          const xScale = d3
-            .scaleBand()
-            .domain(currentData.map((d) => d.region))
-            .range([0, barWidth])
-            .padding(0.2);
+        const xScale = d3
+          .scaleBand()
+          .domain(currentData.map((d) => d.region))
+          .range([0, barWidth])
+          .padding(0.2);
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(currentData, (d) => d.value)])
+          .range([barHeight, 0]);
 
-          const yScale = d3
-            .scaleLinear()
-            .domain([0, d3.max(currentData, (d) => d.value)])
-            .range([barHeight, 0]);
+        barSvg
+          .append("g")
+          .attr("transform", `translate(0,${barHeight})`)
+          .call(
+            d3
+              .axisBottom(xScale)
+              .tickFormat((d) => d)
+              .tickSizeOuter(0)
+          )
+          .selectAll("text")
+          .attr("transform", "rotate(-45)")
+          .style("text-anchor", "end");
 
-          // Axes
-          const xAxis = barSvg
-            .append("g")
-            .attr("transform", `translate(0,${barHeight})`)
-            .call(d3.axisBottom(xScale))
-            .selectAll("text")
-            .attr("transform", "rotate(-45)")
-            .style("text-anchor", "end")
-            .style("font-family", "Arial, sans-serif")
-            .style("font-size", "10px");
+        barSvg.append("g").call(d3.axisLeft(yScale));
 
-          const yAxis = barSvg.append("g").call(d3.axisLeft(yScale));
+        const bars = barSvg
+          .selectAll(".bar")
+          .data(currentData)
+          .enter()
+          .append("rect")
+          .attr("class", "bar")
+          .attr("x", (d) => xScale(d.region))
+          .attr("y", (d) => yScale(d.value))
+          .attr("width", xScale.bandwidth())
+          .attr("height", (d) => barHeight - yScale(d.value))
+          .attr("fill", "#69b3a2");
 
-          // Tooltip
-          const barTooltip = d3
-            .select("body")
-            .append("div")
-            .style("position", "absolute")
-            .style("background-color", "white")
-            .style("border", "1px solid #ccc")
-            .style("padding", "5px")
-            .style("border-radius", "5px")
-            .style("display", "none")
-            .style("font-family", "Arial, sans-serif")
-            .style("font-size", "12px");
+        // Filter
+        barFilter
+          .selectAll("option")
+          .data(["EV sales", "EV stock"])
+          .enter()
+          .append("option")
+          .text((d) => d);
 
-          // Bars
-          const bars = barSvg
-            .selectAll(".bar")
+        barFilter.on("change", function () {
+          const selected = this.value;
+          currentData = selected === "EV sales" ? salesData : stockData;
+
+          yScale.domain([0, d3.max(currentData, (d) => d.value)]);
+
+          bars
             .data(currentData)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
+            .transition()
             .attr("x", (d) => xScale(d.region))
             .attr("y", (d) => yScale(d.value))
-            .attr("width", xScale.bandwidth())
-            .attr("height", (d) => barHeight - yScale(d.value))
-            .attr("fill", "#69b3a2")
-            .on("mouseover", function (event, d) {
-              d3.select(this).style("fill", "#377eb8");
-              barTooltip
-                .style("display", "block")
-                .html(
-                  `<strong>Region:</strong> ${d.region}<br><strong>Value:</strong> ${d.value}`
-                );
-            })
-            .on("mousemove", function (event) {
-              barTooltip
-                .style("top", event.pageY + 10 + "px")
-                .style("left", event.pageX + 10 + "px");
-            })
-            .on("mouseout", function () {
-              d3.select(this).style("fill", "#69b3a2");
-              barTooltip.style("display", "none");
-            });
-
-          // Add dropdown for toggling between sales and stock
-          const barDropdown = d3
-            .select("body")
-            .append("select")
-            .style("margin", "10px");
-
-          barDropdown
-            .selectAll("option")
-            .data(["EV sales", "EV stock"])
-            .enter()
-            .append("option")
-            .text((d) => d)
-            .attr("value", (d) => d);
-
-          barDropdown.on("change", function () {
-            const selected = this.value;
-            currentData = selected === "EV sales" ? salesData : stockData;
-
-            // Update scales
-            xScale.domain(currentData.map((d) => d.region));
-            yScale.domain([0, d3.max(currentData, (d) => d.value)]);
-
-            // Update axes
-            barSvg.select(".x-axis").transition().call(d3.axisBottom(xScale));
-
-            barSvg.select(".y-axis").transition().call(d3.axisLeft(yScale));
-
-            // Update bars
-            bars
-              .data(currentData)
-              .transition()
-              .attr("x", (d) => xScale(d.region))
-              .attr("y", (d) => yScale(d.value))
-              .attr("width", xScale.bandwidth())
-              .attr("height", (d) => barHeight - yScale(d.value));
-          });
-        })
-        .catch((error) => {
-          console.error("Error loading the dataset:", error);
+            .attr("height", (d) => barHeight - yScale(d.value));
         });
+      });
     </script>
+
+    <script src="script.js"></script>
+    <script src="script2.js"></script>
   </body>
 </html>
