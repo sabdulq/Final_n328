@@ -4,7 +4,7 @@ Author:  Saif Abdul Qadeer
 Date: 12-13-2024
 Page Description: 
 This script creates an interactive bar chart visualization for EV sales 
-and stock data by region. It dynamically updates the chart based on user 
+by region. It dynamically updates the chart based on user 
 selection from a dropdown menu, using D3.js to manage data binding, 
 scaling, and interactivity.
 *************************************************
