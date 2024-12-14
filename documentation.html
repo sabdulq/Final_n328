@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive EV Visualization Documentation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 20px;
+        color: #333;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #0056b3;
+      }
+      a {
+        color: #0056b3;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .section {
+        margin-bottom: 40px;
+      }
+      .content {
+        padding: 10px 20px;
+        border-left: 4px solid #0056b3;
+        background: #f9f9f9;
+      }
+      /* Style for the navigation bar */
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      nav {
+        background-color: #0056b3;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+      }
+
+      nav .nav-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: white;
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+      }
+
+      nav a:hover {
+        background-color: #004494;
+      }
+      i {
+        padding: 20px;
+      }
+    </style>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-title">EV Data Analysis</div>
+      <div>
+        <a href="index.html"
+          ><i class="fas fa-chart-bar"></i>Visualization Page</a
+        >
+        <a href="documentation.html"
+          ><i class="fas fa-file-alt"></i>Documentation Page</a
+        >
+      </div>
+    </nav>
+
+    <h1>EV Visualization Documentation</h1>
+
+    <div class="section">
+      <h2>Dataset Description</h2>
+      <div class="content">
+        <p>
+          For this project, I selected the dataset
+          <strong>“IEA Global EV Data 2024”</strong>, which was sourced from
+          Kaggle. The dataset provides a comprehensive record of the global
+          adoption of electric vehicles (EVs), enabling analysis across various
+          dimensions such as time, region, and powertrain type. You can access
+          the dataset <a href="https://www.kaggle.com/">here</a>.
+        </p>
+        <p>
+          The dataset includes several key columns: the
+          <strong>Region</strong> column specifies the geographical areas being
+          analyzed, such as Australia, Europe, and North America. The
+          <strong>Category</strong> column distinguishes between historical and
+          projected data, allowing for a temporal comparison of EV trends. The
+          <strong>Parameter</strong> column identifies the type of metric being
+          recorded, including EV sales, EV stock, and EV stock share. Other
+          columns include <strong>Mode</strong> (type of transportation),
+          <strong>Powertrain</strong> (e.g., BEV or EV),
+          <strong>Year</strong> (time period),
+          <strong>Unit</strong> (measurement units), and
+          <strong>Value</strong> (numerical data).
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Purpose of Analysis</h2>
+      <div class="content">
+        <p>
+          The objective of this analysis is to conduct a thorough and
+          professional exploration of the global adoption of electric vehicles
+          (EVs). By focusing on critical metrics and trends, the aim is to
+          uncover actionable insights that illustrate how different regions and
+          powertrain types contribute to this transformative shift in
+          transportation. The analysis is guided by two strategically crafted
+          questions, each designed to delve deeply into specific aspects of EV
+          adoption:
+        </p>
+        <p>
+          <strong
+            >1. How has EV adoption evolved globally over time, and how do
+            different regions compare in their progress?</strong
+          >
+          This question seeks to establish a clear understanding of the temporal
+          and regional dynamics of EV adoption. By examining historical trends
+          and regional disparities, the goal is to identify leaders, laggards,
+          and the factors driving adoption in different parts of the world. This
+          exploration provides valuable insights into the pace of the global EV
+          transition and the effectiveness of regional policies and market
+          conditions.
+        </p>
+        <p>
+          <strong
+            >2. How do different powertrains (e.g., BEVs, EVs) contribute to
+            overall EV adoption trends across regions?</strong
+          >
+          This question aims to analyze the role of technology in shaping EV
+          adoption. By focusing on specific powertrain types such as Battery
+          Electric Vehicles (BEVs) and Electric Vehicles (EVs), the analysis
+          uncovers how technological advancements and preferences impact
+          regional adoption patterns. This understanding is crucial for
+          policymakers, manufacturers, and stakeholders to optimize strategies
+          and align technological developments with market demands.
+        </p>
+        <p>
+          By addressing these questions, the analysis not only highlights key
+          trends but also lays the foundation for informed decision-making and
+          strategic planning in the global EV landscape.
+        </p>
+      </div>
+    </div>
+    <div class="section">
+      <h2>Overview</h2>
+      <div class="content">
+        <p>
+          When planning the visualization page, I initially envisioned creating
+          a dashboard-style layout with 4-5 visualizations arranged side by side
+          in two rows. The idea was to make the page compact and allow users to
+          view multiple charts simultaneously for a quick comparison. However,
+          as I began implementing the visualizations, I realized that this
+          approach significantly reduced the size of each chart, making it
+          harder to display data effectively and clearly. To ensure that the
+          visualizations were legible and could convey their intended insights,
+          I opted for a simpler design where each visualization occupies its own
+          row. This one-per-row layout provides sufficient space to showcase the
+          charts with clarity and detail, enhancing the user experience.
+        </p>
+        <p>
+          I placed the visualization for Question 1 first because it establishes
+          a foundational understanding of global EV adoption trends over time
+          and across regions. This heatmap serves as a strong starting point for
+          exploring the broader context of EV adoption, making it easier to
+          identify regional disparities and overall progress. By presenting this
+          visualization first, users gain a high-level overview of the data,
+          setting the stage for more detailed analyses.
+        </p>
+        <p>
+          The visualization for Question 2 follows naturally, as it delves
+          deeper into the specific contributions of powertrain types to EV
+          adoption trends across regions. This bar chart provides a more focused
+          analysis, complementing the broader insights from the heatmap. By
+          exploring regional performance and comparing sales and stock values,
+          this visualization offers a deeper understanding of the technological
+          and market dynamics driving EV adoption. The sequential order ensures
+          that users progress from a global overview to a more detailed
+          breakdown.
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Visualization Methodology for Question 1</h2>
+      <div class="content">
+        <p>
+          To explore the evolution of EV adoption over time and compare regional
+          progress, I initially attempted to create a multi-line chart. The idea
+          was to represent each region as a separate line, with the x-axis
+          capturing time (years) and the y-axis representing EV stock share
+          percentages. However, this approach quickly proved to be inadequate.
+          With multiple regions displaying similar trends, the lines often
+          overlapped, creating a cluttered visualization that was difficult to
+          interpret. Additionally, the large number of data points across years
+          and regions made it challenging to discern clear patterns or extract
+          meaningful insights. Recognizing these limitations, I decided to
+          abandon the multi-line chart and explore alternative visualization
+          techniques.
+        </p>
+        <p>
+          I ultimately settled on a heatmap as a more effective way to represent
+          the data. The heatmap uses color intensity to encode the EV stock
+          share percentage, with darker shades representing higher adoption
+          rates. This approach allows users to quickly identify trends and
+          patterns at a glance without the visual clutter of overlapping lines.
+          The x-axis represents years, enabling a clear view of temporal trends,
+          while the y-axis lists regions, facilitating comparisons across
+          different geographical areas. To enhance interactivity, I added a
+          dropdown menu that allows users to filter the heatmap by region. This
+          feature ensures that the visualization remains user-friendly and
+          adaptable to different analytical needs. The use of tooltips further
+          enriches the experience by providing detailed information about
+          specific data points, including the region, year, and EV stock share
+          percentage. The heatmap effectively answers the first question by
+          highlighting how EV adoption has evolved globally, showing regional
+          disparities and long-term trends in a clear and visually engaging
+          manner.
+        </p>
+      </div>
+    </div>
+    <div class="section">
+      <h2>Visualization Development Process</h2>
+      <p>
+        Below are the initial rough sketch and a failed attempt at the
+        visualization design. The rough sketch represents the initial idea for
+        the layout, while the failed attempt highlights the challenges faced
+        during implementation.
+      </p>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 20px;
+          margin-top: 20px;
+        "
+      >
+        <div style="text-align: center; flex: 1">
+          <h3>Rough Sketch</h3>
+          <img
+            src="q1 rough sketch.jpg"
+            alt="Sketch of the Visualization"
+            style="
+              width: 100%;
+              max-width: 400px;
+              border: 2px solid #ddd;
+              border-radius: 5px;
+              box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            "
+          />
+        </div>
+        <div style="text-align: center; flex: 1">
+          <h3>Failed Attempt</h3>
+          <img
+            src="Multi-line faile chart.png"
+            alt="Failed Attempt Visualization"
+            style="
+              width: 100%;
+              max-width: 400px;
+              border: 2px solid #ddd;
+              border-radius: 5px;
+              box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            "
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Visualization Methodology for Question 2</h2>
+      <div class="content">
+        <p>
+          I initially decided to use a stacked area chart to visualize the
+          evolution of EV adoption over time and compare regional progress. My
+          goal was to represent each region as a distinct layer, with the x-axis
+          showing time and the y-axis cumulatively displaying EV stock share
+          percentages. However, as I began working on the chart, I realized it
+          was not the right choice for this analysis. The stacking effect made
+          the visualization overly complex, with smaller regions becoming
+          overshadowed by larger ones. This made it difficult to see trends for
+          regions with lower contributions. Additionally, the overlapping and
+          varying widths of the stacked areas created visual clutter, making it
+          hard to distinguish individual patterns or draw meaningful insights.
+          With the extensive dataset covering multiple years, the chart quickly
+          became too noisy and overwhelming. I wanted the visualization to
+          clearly isolate and highlight trends for each region, so I decided to
+          abandon the stacked area chart and explore other, more effective
+          techniques.
+        </p>
+        <p>
+          The final bar chart provides a streamlined view of the data, focusing
+          on one parameter—either EV sales or EV stock—at a time. The x-axis
+          represents regions, while the y-axis captures the aggregated values
+          for the selected parameter. Users can toggle between EV sales and EV
+          stock using a dropdown menu, which updates the chart dynamically. This
+          interactivity ensures that the visualization remains uncluttered while
+          allowing users to explore both parameters in detail. The bar chart is
+          further enhanced with tooltips that display exact values for each
+          region, making it easy to identify regional leaders and quantify their
+          contributions. The chart’s simple design and interactivity make it
+          highly effective for answering the second question, as it clearly
+          shows how different powertrains contribute to EV adoption across
+          regions. The ability to toggle between parameters adds depth to the
+          analysis, enabling users to explore multiple dimensions of the data
+          within a single visualization.
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Conclusion</h2>
+      <div class="content">
+        <p>
+          This project demonstrates the power of interactive visualizations in
+          uncovering insights from complex datasets. By iteratively refining the
+          visualizations, I was able to address the key questions effectively
+          while ensuring that the visualizations remained user-friendly and
+          visually appealing. The heatmap provided a comprehensive view of
+          global EV adoption trends, highlighting temporal changes and regional
+          disparities in a clear and intuitive manner. Meanwhile, the bar chart
+          offered a focused analysis of regional contributions to EV sales and
+          stock, showcasing the importance of different powertrain types in
+          driving adoption.
+        </p>
+        <p>
+          The process of designing these visualizations underscored the
+          importance of selecting the right visual format to suit the data and
+          analytical goals. The initial attempts at creating multi-line and
+          grouped bar charts revealed their limitations, prompting a shift to
+          simpler yet more impactful designs. This iterative approach not only
+          improved the quality of the visualizations but also deepened my
+          understanding of the data. The findings from this analysis provide
+          valuable insights into the global EV landscape, emphasizing the need
+          for targeted strategies to accelerate adoption in lagging regions and
+          optimize the contributions of various powertrain types.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+```

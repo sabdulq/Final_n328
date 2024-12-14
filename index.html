@@ -1,276 +1,133 @@
+<!-- 
+*************************************************
+Author: Saif Abdul Qadeer
+Date: 2024-06-22
+Page Description: This page provides an interactive visualization for EV data,
+including a heatmap, bar chart, multi-line chart, and a map visualization.
+The charts dynamically update based on user input using D3.js.
+*************************************************
+-->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Interactive Charts</title>
+    <title>Interactive Heatmap</title>
+
+    <!-- Importing D3.js library for data-driven visualizations -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+
     <style>
+      /* Chart container styling for spacing and layout */
       .chart-container {
-        margin-bottom: 30px; /* Add spacing between chart sections */
+        margin-bottom: 30px; /* Space between each chart section */
       }
 
+      /* Styling for the dropdown filter container */
       .filter-container {
-        text-align: center; /* Center-align filters */
-        margin-bottom: 10px; /* Add spacing below filters */
+        text-align: right; /* Aligning dropdown filters to the right */
+        margin-bottom: 0.2px;
       }
 
+      /* Center the SVG charts within their containers */
       .chart-container svg {
         display: block;
-        margin: 0 auto; /* Center the charts */
+        margin: 0 auto;
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      nav {
+        background-color: #0056b3;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+      }
+
+      nav .nav-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: white;
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+      }
+
+      nav a:hover {
+        background-color: #004494;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #0056b3;
+      }
+      i {
+        padding: 20px;
       }
     </style>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <!-- Chart 1 -->
-    <div class="chart-container">
-      <div class="filter-container">
-        <select id="chart1-filter"></select>
+    <nav>
+      <div class="nav-title">EV Data Visualization</div>
+      <div>
+        <a href="index.html"
+          ><i class="fas fa-chart-bar"></i>Visualization Page</a
+        >
+        <a href="documentation.html"
+          ><i class="fas fa-file-alt"></i>Documentation Page</a
+        >
       </div>
-      <svg id="chart1"></svg>
+    </nav>
+
+    <!-- Main heading for the visualization dashboard -->
+    <h1>EV Data Visualization</h1>
+
+    <!-- Heatmap Section -->
+    <div class="chart-container">
+      <!-- Dropdown filter for heatmap -->
+      <div class="filter-container">
+        <select id="heatmap-filter"></select>
+        <!-- Heatmap filter dropdown -->
+      </div>
+      <svg id="heatmap"></svg>
+      <!-- SVG container for the heatmap -->
     </div>
 
-    <!-- Chart 2 -->
+    <br />
+
+    <!-- Stacked-barchart-chart Section -->
     <div class="chart-container">
+      <!-- Dropdown filter for Stacked-barchart-chart -->
       <div class="filter-container">
-        <select id="chart2-filter"></select>
+        <select id="Stacked-barchart-chart-filter"></select>
+        <!-- Stacked-barchart-chart filter -->
       </div>
-      <svg id="chart2"></svg>
+      <svg id="Stacked-barchart-chart"></svg>
+      <!-- SVG container for the Stacked-barchart-chart -->
     </div>
-    <script>
-      // Heatmap Dimensions and SVG
-      const heatmapMargin = { top: 60, right: 20, bottom: 50, left: 100 };
-      const heatmapWidth = 800 - heatmapMargin.left - heatmapMargin.right;
-      const heatmapHeight = 400 - heatmapMargin.top - heatmapMargin.bottom;
 
-      const heatmapSvg = d3
-        .select("#heatmap")
-        .attr("width", heatmapWidth + heatmapMargin.left + heatmapMargin.right)
-        .attr(
-          "height",
-          heatmapHeight + heatmapMargin.top + heatmapMargin.bottom
-        )
-        .append("g")
-        .attr(
-          "transform",
-          `translate(${heatmapMargin.left},${heatmapMargin.top})`
-        );
-
-      const heatmapFilter = d3
-        .select("#heatmap-filter")
-        .style("margin", "10px");
-
-      // Load the Heatmap Data
-      d3.csv("IEA Global EV Data 2024.csv").then((data) => {
-        const parsedData = data.map((d) => ({
-          region: d.region,
-          parameter: d.parameter,
-          year: +d.year,
-          value: +d.value,
-        }));
-
-        const filteredData = parsedData.filter(
-          (d) => d.parameter === "EV stock share"
-        );
-
-        const regions = Array.from(new Set(filteredData.map((d) => d.region)));
-        const years = Array.from(new Set(filteredData.map((d) => d.year))).sort(
-          (a, b) => a - b
-        );
-
-        const xScale = d3
-          .scaleBand()
-          .domain(years)
-          .range([0, heatmapWidth])
-          .padding(0.05);
-        const yScale = d3
-          .scaleBand()
-          .domain(regions)
-          .range([0, heatmapHeight])
-          .padding(0.05);
-
-        const colorScale = d3
-          .scaleSequential(d3.interpolateBlues)
-          .domain([0, d3.max(filteredData, (d) => d.value)]);
-
-        // Add Axes
-        heatmapSvg
-          .append("g")
-          .attr("transform", `translate(0,${heatmapHeight})`)
-          .call(d3.axisBottom(xScale).tickFormat(d3.format("d")));
-
-        heatmapSvg.append("g").call(d3.axisLeft(yScale));
-
-        // Add Rectangles
-        const heatmapRects = heatmapSvg
-          .selectAll("rect")
-          .data(filteredData)
-          .enter()
-          .append("rect")
-          .attr("x", (d) => xScale(d.year))
-          .attr("y", (d) => yScale(d.region))
-          .attr("width", xScale.bandwidth())
-          .attr("height", yScale.bandwidth())
-          .style("fill", (d) => colorScale(d.value))
-          .style("stroke", "#ccc");
-
-        // Tooltip
-        const heatmapTooltip = d3
-          .select("body")
-          .append("div")
-          .style("position", "absolute")
-          .style("background-color", "white")
-          .style("border", "1px solid #ccc")
-          .style("padding", "5px")
-          .style("border-radius", "5px")
-          .style("display", "none");
-
-        heatmapRects
-          .on("mouseover", function (event, d) {
-            d3.select(this).style("stroke", "black");
-            heatmapTooltip
-              .style("display", "block")
-              .html(
-                `Region: ${d.region}<br>Year: ${d.year}<br>Value: ${d.value}`
-              );
-          })
-          .on("mousemove", (event) => {
-            heatmapTooltip
-              .style("top", event.pageY + 10 + "px")
-              .style("left", event.pageX + 10 + "px");
-          })
-          .on("mouseout", function () {
-            d3.select(this).style("stroke", "#ccc");
-            heatmapTooltip.style("display", "none");
-          });
-
-        // Filter
-        heatmapFilter
-          .selectAll("option")
-          .data(["All", ...regions])
-          .enter()
-          .append("option")
-          .text((d) => d);
-
-        heatmapFilter.on("change", function () {
-          const selectedRegion = this.value;
-          const updatedData =
-            selectedRegion === "All"
-              ? filteredData
-              : filteredData.filter((d) => d.region === selectedRegion);
-
-          heatmapRects
-            .data(updatedData)
-            .transition()
-            .attr("y", (d) => yScale(d.region))
-            .attr("x", (d) => xScale(d.year))
-            .style("fill", (d) => colorScale(d.value));
-        });
-      });
-      // Bar Chart Dimensions and SVG
-      const barMargin = { top: 60, right: 20, bottom: 100, left: 60 };
-      const barWidth = 800 - barMargin.left - barMargin.right;
-      const barHeight = 400 - barMargin.top - barMargin.bottom;
-
-      const barSvg = d3
-        .select("#bar-chart")
-        .attr("width", barWidth + barMargin.left + barMargin.right)
-        .attr("height", barHeight + barMargin.top + barMargin.bottom)
-        .append("g")
-        .attr("transform", `translate(${barMargin.left},${barMargin.top})`);
-
-      const barFilter = d3.select("#bar-chart-filter").style("margin", "10px");
-
-      // Load the Bar Chart Data
-      d3.csv("IEA Global EV Data 2024.csv").then((data) => {
-        const parsedData = data.map((d) => ({
-          region: d.region,
-          parameter: d.parameter,
-          value: +d.value,
-        }));
-
-        const salesData = Array.from(
-          d3.rollup(
-            parsedData.filter((d) => d.parameter === "EV sales"),
-            (v) => d3.sum(v, (d) => d.value),
-            (d) => d.region
-          ),
-          ([region, value]) => ({ region, value })
-        );
-
-        const stockData = Array.from(
-          d3.rollup(
-            parsedData.filter((d) => d.parameter === "EV stock"),
-            (v) => d3.sum(v, (d) => d.value),
-            (d) => d.region
-          ),
-          ([region, value]) => ({ region, value })
-        );
-
-        let currentData = salesData;
-
-        const xScale = d3
-          .scaleBand()
-          .domain(currentData.map((d) => d.region))
-          .range([0, barWidth])
-          .padding(0.2);
-        const yScale = d3
-          .scaleLinear()
-          .domain([0, d3.max(currentData, (d) => d.value)])
-          .range([barHeight, 0]);
-
-        barSvg
-          .append("g")
-          .attr("transform", `translate(0,${barHeight})`)
-          .call(
-            d3
-              .axisBottom(xScale)
-              .tickFormat((d) => d)
-              .tickSizeOuter(0)
-          )
-          .selectAll("text")
-          .attr("transform", "rotate(-45)")
-          .style("text-anchor", "end");
-
-        barSvg.append("g").call(d3.axisLeft(yScale));
-
-        const bars = barSvg
-          .selectAll(".bar")
-          .data(currentData)
-          .enter()
-          .append("rect")
-          .attr("class", "bar")
-          .attr("x", (d) => xScale(d.region))
-          .attr("y", (d) => yScale(d.value))
-          .attr("width", xScale.bandwidth())
-          .attr("height", (d) => barHeight - yScale(d.value))
-          .attr("fill", "#69b3a2");
-
-        // Filter
-        barFilter
-          .selectAll("option")
-          .data(["EV sales", "EV stock"])
-          .enter()
-          .append("option")
-          .text((d) => d);
-
-        barFilter.on("change", function () {
-          const selected = this.value;
-          currentData = selected === "EV sales" ? salesData : stockData;
-
-          yScale.domain([0, d3.max(currentData, (d) => d.value)]);
-
-          bars
-            .data(currentData)
-            .transition()
-            .attr("x", (d) => xScale(d.region))
-            .attr("y", (d) => yScale(d.value))
-            .attr("height", (d) => barHeight - yScale(d.value));
-        });
-      });
-    </script>
-
-    <script src="script.js"></script>
-    <script src="script2.js"></script>
+    <!-- External JavaScript files for each visualization -->
+    <script src="heatmap.js"></script>
+    <!-- Script for the heatmap -->
+    <!-- <script src="barchart.js"></script>-->
+    <!-- Script for the bar chart -->
+    <!-- <script src="Multi-Line.js"></script>
+    Script for the multi-line chart -->
+    <!-- <script src="map.js"></script> -->
+    <script src="Stacked-barchart.js"></script>
+    <!-- Script for the map visualization -->
   </body>
 </html>
